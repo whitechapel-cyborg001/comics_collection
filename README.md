@@ -24,3 +24,15 @@ pom.xml -> added Springdoc OpenAI
 
 application.properties added PostgreSQL + Swagger UI
 
+http://localhost:8080
+
+./config/SecurityConfig.java : Autologgin for tests
+
+./WelcomeController.java : redirect to swagger-ui.html
+
+Create entity : Published   - Editorial
+                Series      - Colleccion
+                Creator     - Author
+                Comic       - Main class
+
+####################################################################### 2025/01/04
