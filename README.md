@@ -36,3 +36,7 @@ Create entity : Published   - Editorial
                 Comic       - Main class
 
 ####################################################################### 2025/01/04
+
+psql : estructura de tablas creada por Hibernate -> ok
+
+Crear reposity y controller para Comic, Publisher y Series (falta series)
