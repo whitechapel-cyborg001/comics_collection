@@ -1,6 +1,7 @@
 package com.whitechapel.comics_collection_api.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Entity
@@ -10,5 +11,6 @@ public class Publisher {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message="Name is required")
     private String name;  // e.g., "Marvel", "DC Comics"
 }
