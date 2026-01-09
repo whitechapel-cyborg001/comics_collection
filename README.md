@@ -39,4 +39,8 @@ Create entity : Published   - Editorial
 
 psql : estructura de tablas creada por Hibernate -> ok
 
-Crear reposity y controller para Comic, Publisher y Series (falta series)
+Crear reposity y controller para Comic, Publisher
+
+####################################################################### 2025/01/09
+
+repository y controller para Series y Creator
