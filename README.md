@@ -64,3 +64,11 @@ repository y controller para Series y Creator
 Add validations to Comic, Creator, Publisher y Series.java
 
 Exception control: exception/GlobalExceptionHandler.java
+
+Security: JWT
+    - pom.xml : dependencies
+    - entitiy User.java + Repository
+    - security: JwtTokenProvider.java   -> Generation/validation tokens
+                JwtAuthenticationFilter.java -> Verify request tokens
+    - config/SecurityConfig.java update
+    - controller/AuthController.java
