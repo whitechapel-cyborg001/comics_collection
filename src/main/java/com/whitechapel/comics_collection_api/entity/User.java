@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Table(name = "\"user\"")  // Quotes forcen PostgreSQL a tratarlo como nombre, no keyword
 @Data
 public class User implements UserDetails {
     @Id
