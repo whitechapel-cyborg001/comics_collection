@@ -2,6 +2,8 @@ package com.whitechapel.comics_collection_api.controller;
 
 import com.whitechapel.comics_collection_api.entity.Comic;
 import com.whitechapel.comics_collection_api.repository.ComicRepository;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -11,6 +13,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import org.springframework.security.test.context.support.WithMockUser;
+//import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -22,7 +28,28 @@ public class ComicControllerTest {
     @Autowired
     private ComicRepository comicRepository;
 
+    @BeforeEach
+    void cleanDb() {
+        comicRepository.deleteAll();
+    }
+    
     @Test
+    @WithMockUser(username = "testuser", roles = {"USER"})
+    void testGetAllComics() throws Exception {
+
+        Comic comic = new Comic();
+        comic.setTitle("Batman");
+        comic.setIssueNumber(1);
+        comic.setYear(2022);
+        comicRepository.save(comic);
+
+        mockMvc.perform(get("/api/comics"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].title").value("Batman"));
+    }
+    @Test
+    @WithMockUser(username = "testuser")
     public void testGetAllComics() throws Exception {
         mockMvc.perform(get("/api/comics"))
                .andExpect(status().isOk())
@@ -30,23 +57,26 @@ public class ComicControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
     public void testCreateComic() throws Exception {
         String json = "{ \"title\": \"Test Comic\", \"issueNumber\": 1, \"year\": 2026 }";
         mockMvc.perform(post("/api/comics")
                .contentType(MediaType.APPLICATION_JSON)
-               .content(json))
+               .content(json)
+               .with(csrf()))
                .andExpect(status().isOk());
     }
 
-    // Añade más tests si quieres, e.g., para GET by ID
     @Test
+    @WithMockUser(username = "testuser")
     public void testGetComicById() throws Exception {
-        // Primero crea un cómic para probar
+        // Crea un cómic de prueba
         Comic testComic = new Comic();
-        testComic.setTitle("Test");
+        testComic.setTitle("Test ID");
         testComic = comicRepository.save(testComic);
 
         mockMvc.perform(get("/api/comics/" + testComic.getId()))
-               .andExpect(status().isOk());
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.title").value("Test ID"));
     }
 }

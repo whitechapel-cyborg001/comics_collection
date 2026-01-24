@@ -35,6 +35,9 @@ Create entity : Published   - Editorial
                 Creator     - Author
                 Comic       - Main class
 
+User: postgres
+DDBB: comics_collection
+
 ####################################################################### 2025/01/04
 
 psql : estructura de tablas creada por Hibernate -> ok
@@ -73,7 +76,10 @@ Security: JWT
     - config/SecurityConfig.java update
     - controller/AuthController.java
 
-    ####################################################################### 2025/01/14
+####################################################################### 2025/01/14
 
-    Add tests
+Add tests with Auth
 
+resources/application.properties -> spring.jpa.hibernate.ddl-auto=create (return to update in production) !!!!!!!!!!!!!
+
+Sigue sin funcionar la tabla no se crea de 0 ¿PORQUEEEE?
