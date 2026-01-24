@@ -39,6 +39,9 @@ public class Comic {
 
     private String variant;         // "Standard", "Variant A"
 
+    @ManyToOne
+    private Publisher publisher;
+
     // ------------------------
     // Relaciones JPA
     // ------------------------
