@@ -2,29 +2,53 @@ package com.whitechapel.comics_collection_api.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "\"user\"")  // Quotes forcen PostgreSQL a tratarlo como nombre, no keyword
+@Table(name = "app_user")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
 
-    private String password;  // Usa BCrypt para hashear
+    @JsonIgnore
+    @Column(nullable = false)
+    private String password;  // Asegúrate de hashear con BCrypt al guardar
 
-    // Implementa UserDetails
+    // Roles de usuario (opcional, útil para permisos)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles;
+
+    // ------------------------
+    // Implementación de UserDetails
+    // ------------------------
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();  // Añade roles si quieres
+        if (roles == null) return Set.of();
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .collect(Collectors.toSet());
     }
 
     @Override
