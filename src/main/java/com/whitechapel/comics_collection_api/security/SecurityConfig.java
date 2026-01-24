@@ -52,3 +52,74 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
+/* Flujo de seguridad JWT
+┌──────────────────────────────┐
+│        Cliente (Postman /    │
+│        Frontend)             │
+└─────────────┬────────────────┘
+              │
+              │ POST /auth/login
+              │ (username + password)
+              ▼
+┌──────────────────────────────┐
+│      AuthController          │
+│  - Recibe login              │
+│  - Llama a AuthenticationMgr │
+└─────────────┬────────────────┘
+              │
+              │ Spring Security
+              ▼
+┌──────────────────────────────┐
+│   AuthenticationManager      │
+│  - Verifica username/password│
+│  - Llama a UserDetailsService│
+└─────────────┬────────────────┘
+              │
+              │ Devuelve Authentication object
+              ▼
+┌──────────────────────────────┐
+│   JwtTokenProvider           │
+│  - Genera token JWT          │
+│  - Firma con secreto HMAC-SHA│
+│  - Establece expiración      │
+└─────────────┬────────────────┘
+              │
+              │ Token JWT
+              ▼
+┌──────────────────────────────┐
+│   Cliente                     │
+│  - Guarda JWT (localStorage, │
+│    memoria, etc.)             │
+└─────────────┬────────────────┘
+              │
+              │ Envío de request protegido
+              │ con cabecera:
+              │ Authorization: Bearer <token>
+              ▼
+┌──────────────────────────────┐
+│ JwtAuthenticationFilter      │
+│  - Intercepta la request      │
+│  - Extrae token de Authorization
+│  - Valida token con JwtTokenProvider
+│  - Si válido: carga usuario con UserDetailsService
+│  - Inserta Authentication en SecurityContext
+└─────────────┬────────────────┘
+              │
+              │ Request autenticada
+              ▼
+┌──────────────────────────────┐
+│  SecurityContext de Spring   │
+│  - Contiene Authentication   │
+│  - Permite acceder a endpoints
+└─────────────┬────────────────┘
+              │
+              ▼
+┌──────────────────────────────┐
+│      API Controller           │
+│  - /api/comics, /api/publishers, etc.
+│  - Solo se ejecuta si SecurityContext
+│    tiene Authentication válida
+└──────────────────────────────┘
+
+*/
