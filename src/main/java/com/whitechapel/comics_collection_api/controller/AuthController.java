@@ -3,46 +3,57 @@ package com.whitechapel.comics_collection_api.controller;
 import com.whitechapel.comics_collection_api.entity.User;
 import com.whitechapel.comics_collection_api.repository.UserRepository;
 import com.whitechapel.comics_collection_api.security.JwtTokenProvider;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller que expone endpoints para autenticación:
+ *  - /auth/login → obtiene token JWT
+ *  - /auth/register → registra un nuevo usuario
+ */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    UserRepository userRepository;
+    private JwtTokenProvider tokenProvider;
 
     @Autowired
-    JwtTokenProvider tokenProvider;
+    private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;  // Para hashear passwords
+    private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
-        return ResponseEntity.ok("User registered successfully");
+    /**
+     * Endpoint para login
+     */
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestParam String username,
+                                        @RequestParam String password) {
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        );
+        String token = tokenProvider.generateToken(auth);
+        return ResponseEntity.ok(token);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
-        );
-        String jwt = tokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(jwt);
+    /**
+     * Endpoint para registrar un nuevo usuario
+     */
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@Valid @RequestBody User user) {
+        // Hashear password
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User savedUser = userRepository.save(user);
+        return ResponseEntity.status(201).body(savedUser);
     }
 }
